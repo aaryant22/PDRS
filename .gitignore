@@ -1,12 +1,11 @@
 __pycache__/
 .venv/
-submissions/*
+submissions/
 
 
 # files
 Sparsematrix.csv
 countmatrix.csv
-
 
 # images
 */top50words.png
