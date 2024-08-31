@@ -10,7 +10,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
 
-
 class plagiarism_checker:
 
     def __init__(self,filepath) -> None:
@@ -133,7 +132,7 @@ class plagiarism_checker:
                     max_keywords = keywords_found
                     max_language = language
             if max_language:
-                languages_detected.append(language)
+                languages_detected.append(max_language)
 
         self.toplang = Counter(languages_detected).most_common(1)[0][0]
     
@@ -224,3 +223,7 @@ if __name__ == '__main__':
     obj.compute_pairwise_cosine_similarity()
     obj.compute_similarity_score()
     obj.detect_top_programming_lang()
+    obj.compute_similarity_matrix()
+    obj.plot_top_50_words()
+    obj.generate_network_plot()
+    obj.generate_heatmap()

@@ -1,8 +1,8 @@
 import os
-from flask import Flask, redirect, render_template, request, url_for
 import shutil
+from flask import Flask, redirect, render_template, request, url_for
 from zipfile import ZipFile
-from algorithm import calculate_similarity
+from algorithm import plagiarism_checker
 from scrape_code import get_code
 from scrape_subjective import get_data
 from codediff import codediff
@@ -65,16 +65,28 @@ def extract():
 
         os.remove(zip_path)
 
-        p = zip_path.replace('.zip', '')
+        filepath = zip_path.replace('.zip', '')
 
         if assignment_aim:
-            ai_detection(assignment_aim, p)
+            ai_detection(assignment_aim, filepath)
 
-        data, stmts, plag_highest, top_lang = calculate_similarity(p)
-
+        plag_check_obj = plagiarism_checker(filepath)
+        plag_check_obj.get_file_content()
+        plag_check_obj.vectorize_content()
+        plag_check_obj.compute_pairwise_cosine_similarity()
+        plag_check_obj.compute_similarity_score()
+        plag_check_obj.detect_top_programming_lang()
+        plag_check_obj.compute_similarity_matrix()
+        plag_check_obj.plot_top_50_words()
+        plag_check_obj.generate_network_plot()
+        plag_check_obj.generate_heatmap()
+        data = plag_check_obj.pairwise_similarity_score
+        plag_highest = plag_check_obj.highest_plagiarism_score
+        top_lang = plag_check_obj.toplang
+        
         sorted_data = sorted(data, key=lambda x: x[2], reverse=True)
 
-        return redirect(url_for("result", path_to_files=p, data=sorted_data, plag_highest=plag_highest, top_lang=top_lang))
+        return redirect(url_for("result", path_to_files=filepath, data=sorted_data, plag_highest=plag_highest, top_lang=top_lang))
     else:
         return "Uploaded file is not a ZIP file."
 
