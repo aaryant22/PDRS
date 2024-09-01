@@ -11,8 +11,27 @@ from selenium1 import ai_detection
 
 app = Flask(__name__)
 
+session_data = {}
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+def fetch_data(filepath):
+    plag_check_obj = plagiarism_checker(filepath)
+    plag_check_obj.get_file_content()
+    plag_check_obj.vectorize_content()
+    plag_check_obj.compute_pairwise_cosine_similarity()
+    plag_check_obj.compute_similarity_score()
+    plag_check_obj.detect_top_programming_lang()
+    plag_check_obj.compute_similarity_matrix()
+    plag_check_obj.plot_top_50_words()
+    plag_check_obj.generate_network_plot()
+    plag_check_obj.generate_heatmap()
+
+    session_data['filepath'] = filepath
+    session_data['data'] = plag_check_obj.pairwise_similarity_score
+    session_data['plag_highest'] = plag_check_obj.highest_plagiarism_score
+    session_data['top_lang'] = plag_check_obj.toplang
 
 @app.after_request
 def after_request(response):
@@ -44,65 +63,64 @@ def extract():
         return redirect(request.url)
 
     file = request.files['file']
+
     if file.filename == '':
         return redirect(request.url)
 
-    if file and file.filename.endswith('.zip'):
-        assignment_aim = request.form['assignment_aim']
-        prog_lang = request.form['prog_lang']
+    if file:
+        # Check if the file is a ZIP file
+        if file.filename.endswith('.zip'):
 
-        submissions_folder = os.path.join(os.getcwd(), 'submissions')
-        if not os.path.exists(submissions_folder):
-            os.makedirs(submissions_folder, exist_ok=True)
+            print("checked zip")
+            assignment_aim = request.form['assignment_aim']
+            print("assignment aim : ", assignment_aim)
+            prog_lang = request.form['prog_lang']
+            # Check if the 'submissions' directory exists, if not, create it
+            submissions_folder = os.path.join(os.getcwd(), 'submissions')
+            if not os.path.exists(submissions_folder):
+                os.makedirs(submissions_folder, exist_ok=True)
+            
+            clear_submissions_directory()
+            print("clear earlier directory")
 
-        clear_submissions_directory()
+            zip_path = os.path.join(submissions_folder, file.filename)
+            file.save(zip_path)
 
-        zip_path = os.path.join(submissions_folder, file.filename)
-        file.save(zip_path)
+            with ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(submissions_folder)
 
-        with ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(submissions_folder)
+            os.remove(zip_path)
 
-        os.remove(zip_path)
+            filepath = zip_path.replace('.zip', '')
+            print(filepath)
 
-        filepath = zip_path.replace('.zip', '')
+            # calling ai
+            if assignment_aim:
+                ai_detection(assignment_aim, filepath)
 
-        if assignment_aim:
-            ai_detection(assignment_aim, filepath)
+            fetch_data(filepath)
 
-        plag_check_obj = plagiarism_checker(filepath)
-        plag_check_obj.get_file_content()
-        plag_check_obj.vectorize_content()
-        plag_check_obj.compute_pairwise_cosine_similarity()
-        plag_check_obj.compute_similarity_score()
-        plag_check_obj.detect_top_programming_lang()
-        plag_check_obj.compute_similarity_matrix()
-        plag_check_obj.plot_top_50_words()
-        plag_check_obj.generate_network_plot()
-        plag_check_obj.generate_heatmap()
-        data = plag_check_obj.pairwise_similarity_score
-        plag_highest = plag_check_obj.highest_plagiarism_score
-        top_lang = plag_check_obj.toplang
-        
-        sorted_data = sorted(data, key=lambda x: x[2], reverse=True)
+            return redirect("/result")
 
-        return redirect(url_for("result", path_to_files=filepath, data=sorted_data, plag_highest=plag_highest, top_lang=top_lang))
-    else:
-        return "Uploaded file is not a ZIP file."
+        else:
+            return "Uploaded file is not a ZIP file."
+
+    return redirect("/home")
 
 @app.route("/result")
 def result():
-    data = request.args.get('data')
-    plag_highest = request.args.get('plag_highest')
-    top_lang = request.args.get('top_lang')
+    data = session_data['data']
+    plag_highest = session_data['plag_highest']
+    top_lang = session_data['top_lang']
 
-    if not data:
+    if data is None:
         return "Data not found. Please sort first."
+
     return render_template("report.html", data=data, plag_highest=plag_highest, top_lang=top_lang)
 
 @app.route("/list")
 def list():
-    data = request.args.get('data')
+    data = session_data['data']
     return render_template("list.html", data=data)
 
 @app.route("/heatmap")
@@ -119,36 +137,48 @@ def topwords():
 
 @app.route("/singlecomparison", methods=['POST'])
 def single_comparison():
-    data = request.args.get('data')
+    data = session_data['data']
     student = request.form['student']
     newdata = []
-
+    
     for i in data:
-        if i[0] == student or i[1] == student:
-            newdata.append([student, i[1], i[2]] if i[0] == student else [student, i[0], i[2]])
-
+        if i[0] == student:
+            newdata.append([student, i[1], i[2]])
+        if i[1] == student:
+            newdata.append([student, i[0], i[2]])
+    
+    # print(newdata)
     return render_template("singlecomparison.html", data=newdata)
+
 
 @app.route("/compare", methods=['POST'])
 def compare():
+    print("comparing...")
+    
     student1 = request.form['student1']
     student2 = request.form['student2']
-    path = request.args.get('path_to_files')
 
-    full_path1 = os.path.join(path, student1)
-    full_path2 = os.path.join(path, student2)
+    path = session_data['filepath']
+    full_path1 = path + "/" + student1
+    full_path2 = path + "/" + student2
+
+    print(full_path1)
 
     texts = codediff(full_path1, full_path2)
-    text1, text2 = texts
+    text1=texts[0]
+    text2=texts[1]
     l = min(len(text1), len(text2))
 
-    remaining = 1 if len(text1) > len(text2) else -1
+    if len(text1) > len(text2):
+        remaining = 1
+    else:
+        remaining = -1
 
     return render_template("codecompare.html", text1=text1, text2=text2, student1=student1, student2=student2, l=l, remaining=remaining)
 
 @app.route("/chatgpt")
 def chatgpt():
-    assignment_aim = "taylor swift"  # Placeholder
-    filepath = request.args.get('path_to_files')
+    assignment_aim = session_data['assignment_aim']
+    filepath = session_data['filepath']
 
     ai_detection(assignment_aim, filepath)
