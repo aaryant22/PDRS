@@ -1,6 +1,5 @@
 flask
 gunicorn
-flask-session
 jinja2
 requests
 python-docx
@@ -15,10 +14,5 @@ networkx
 bs4
 pdfkit
 fpdf
-flask_bcrypt
-flask_wtf
-flask_login
-flask_sqlalchemy
-email_validator
 selenium
 

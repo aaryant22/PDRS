@@ -1,4 +1,4 @@
-import plagiarism
+import algorithm
 
 def strip_lines_and_return(filename):
     stripped_lines = []
