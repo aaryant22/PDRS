@@ -13,9 +13,6 @@ app = Flask(__name__)
 
 session_data = {}
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 def fetch_data(filepath):
     plag_check_obj = plagiarism_checker(filepath)
     plag_check_obj.get_file_content()
@@ -182,3 +179,6 @@ def chatgpt():
     filepath = session_data['filepath']
 
     ai_detection(assignment_aim, filepath)
+
+if __name__ == '__main__':
+    app.run(debug=True)
