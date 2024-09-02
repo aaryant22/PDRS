@@ -145,10 +145,7 @@ class plagiarism_checker:
             self.similarity_matrix[j, i] = similarity_score
             
     def plot_top_50_words(self):
-
-        n = len(self.sparse_matrix.index)
-        self.similarity_matrix = np.zeros((n, n))
-
+        
         frequency_df = pd.DataFrame(self.count_matrix.sum(), columns=['Frequency'])
         frequency_df = frequency_df.sort_values(by='Frequency', ascending=False)
 
