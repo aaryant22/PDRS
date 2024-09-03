@@ -12,6 +12,7 @@ from selenium1 import ai_detection
 app = Flask(__name__)
 
 session_data = {}
+extracted = False
 
 def fetch_data(filepath):
     plag_check_obj = plagiarism_checker(filepath)
@@ -40,6 +41,7 @@ def after_request(response):
 
 @app.route("/")
 def index():
+    extracted=False
     return render_template("educator.html")
 
 def clear_submissions_directory():
@@ -102,10 +104,11 @@ def extract():
         else:
             return "Uploaded file is not a ZIP file."
 
-    return redirect("/home")
+    return redirect("/home", extracted=False)
 
 @app.route("/result")
 def result():
+    extracted = True
     data = session_data['data']
     plag_highest = session_data['plag_highest']
     top_lang = session_data['top_lang']
@@ -113,27 +116,32 @@ def result():
     if data is None:
         return "Data not found. Please sort first."
 
-    return render_template("report.html", data=data, plag_highest=plag_highest, top_lang=top_lang)
+    return render_template("report.html", data=data, plag_highest=plag_highest, top_lang=top_lang,extracted=extracted)
 
 @app.route("/list")
 def list():
+    extracted = True
     data = session_data['data']
-    return render_template("list.html", data=data)
+    return render_template("list.html", data=data,extracted=extracted)
 
 @app.route("/heatmap")
 def heatmap():
-    return render_template("heatmap.html")
+    extracted = True
+    return render_template("heatmap.html",extracted=extracted)
 
 @app.route("/cluster")
 def cluster():
-    return render_template("cluster.html")
+    extracted = True
+    return render_template("cluster.html",extracted=extracted)
 
 @app.route("/topwords")
 def topwords():
-    return render_template("topwords.html")
+    extracted = True
+    return render_template("topwords.html",extracted=extracted)
 
 @app.route("/singlecomparison", methods=['POST'])
 def single_comparison():
+    extracted = True
     data = session_data['data']
     student = request.form['student']
     newdata = []
@@ -145,11 +153,12 @@ def single_comparison():
             newdata.append([student, i[0], i[2]])
     
     # print(newdata)
-    return render_template("singlecomparison.html", data=newdata)
+    return render_template("singlecomparison.html", data=newdata,extracted=extracted)
 
 
 @app.route("/compare", methods=['POST'])
 def compare():
+    extracted = True
     print("comparing...")
     
     student1 = request.form['student1']
@@ -171,7 +180,7 @@ def compare():
     else:
         remaining = -1
 
-    return render_template("codecompare.html", text1=text1, text2=text2, student1=student1, student2=student2, l=l, remaining=remaining)
+    return render_template("codecompare.html", text1=text1, text2=text2, student1=student1, student2=student2, l=l, remaining=remaining, extracted=extracted)
 
 @app.route("/chatgpt")
 def chatgpt():
