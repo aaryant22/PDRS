@@ -158,7 +158,7 @@ class plagiarism_checker:
         plt.tight_layout()
         output_filename = "./static/top50words.png"
         plt.savefig(output_filename, format="png")
-        plt.close() 
+        plt.clf()
 
     def generate_network_plot(self):
         G = nx.Graph()
@@ -186,6 +186,7 @@ class plagiarism_checker:
         plt.title('Graph of Cosine Similarity')
         output_filename = "./static/clustermap.png"
         plt.savefig(output_filename, format="png")
+        plt.clf()
 
     def generate_heatmap(self):
         hdf=self.sparse_matrix
@@ -209,7 +210,7 @@ class plagiarism_checker:
         plt.tight_layout()
         output_filename = "./static/similarityheatmap.png"
         plt.savefig(output_filename, format="png")
-        plt.close() 
+        plt.clf()
 
     # return self.pairwise_similarity_score, self.corpus_content, plaghighest, toplang
 
