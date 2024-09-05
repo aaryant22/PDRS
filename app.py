@@ -4,10 +4,10 @@ from flask import Flask, redirect, render_template, request, url_for
 from zipfile import ZipFile
 from algorithm import plagiarism_checker
 from scrape_code import get_code
-from scrape_subjective import get_data
+from webscraping_module import get_data
 from codediff import codediff
 from flask_bcrypt import Bcrypt
-from selenium1 import ai_detection
+from webscraping_module import webscraping
 
 app = Flask(__name__)
 
@@ -30,6 +30,11 @@ def fetch_data(filepath):
     session_data['data'] = plag_check_obj.pairwise_similarity_score
     session_data['plag_highest'] = plag_check_obj.highest_plagiarism_score
     session_data['top_lang'] = plag_check_obj.toplang
+
+def webscrape_data(assignment_aim,filepath):
+    webscraping_obj = webscraping(assignment_aim,filepath)
+    webscraping_obj.get_links()
+    webscraping_obj.scrape_data()
 
 @app.after_request
 def after_request(response):
@@ -93,9 +98,9 @@ def extract():
             filepath = zip_path.replace('.zip', '')
             print(filepath)
 
-            # calling ai
+            # calling webscraping and gpt scraping
             if assignment_aim:
-                ai_detection(assignment_aim, filepath)
+                webscrape_data(assignment_aim,filepath)
 
             fetch_data(filepath)
 
@@ -187,7 +192,7 @@ def chatgpt():
     assignment_aim = session_data['assignment_aim']
     filepath = session_data['filepath']
 
-    ai_detection(assignment_aim, filepath)
+    webscrape_data(assignment_aim, filepath)
 
 if __name__ == '__main__':
     app.run(debug=True)

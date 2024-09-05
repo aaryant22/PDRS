@@ -215,7 +215,7 @@ class plagiarism_checker:
     # return self.pairwise_similarity_score, self.corpus_content, plaghighest, toplang
 
 if __name__ == '__main__':
-    obj = plagiarism_checker(r"C:\Users\Aaryan\Downloads\plag")
+    obj = plagiarism_checker(r"") #Enter your filepath here
     obj.get_file_content()
     obj.vectorize_content()
     obj.compute_pairwise_cosine_similarity()
