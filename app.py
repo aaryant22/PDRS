@@ -75,7 +75,7 @@ def extract():
             print("checked zip")
             assignment_aim = request.form['assignment_aim']
             print("assignment aim : ", assignment_aim)
-            prog_lang = request.form['prog_lang']
+            analysis_name = request.form['analysis_name']
             # Check if the 'submissions' directory exists, if not, create it
             submissions_folder = os.path.join(os.getcwd(), 'submissions')
             if not os.path.exists(submissions_folder):
@@ -94,6 +94,9 @@ def extract():
 
             filepath = zip_path.replace('.zip', '')
             print(filepath)
+
+            if analysis_name:
+                session_data['analysis_name']=analysis_name
 
             # calling webscraping and gpt scraping
             if assignment_aim:
@@ -118,7 +121,7 @@ def result():
     if data is None:
         return "Data not found. Please sort first."
 
-    return render_template("report.html", data=data, plag_highest=plag_highest, top_lang=top_lang,extracted=extracted)
+    return render_template("report.html", data=data, plag_highest=plag_highest, top_lang=top_lang,extracted=extracted, analysis_name=session_data['analysis_name'])
 
 @app.route("/list")
 def list():
