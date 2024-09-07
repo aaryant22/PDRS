@@ -97,6 +97,8 @@ def extract():
 
             if analysis_name:
                 session_data['analysis_name']=analysis_name
+            else:
+                session_data['analysis_name']=False
 
             # calling webscraping and gpt scraping
             if assignment_aim:
