@@ -3,10 +3,7 @@ import shutil
 from flask import Flask, redirect, render_template, request, url_for
 from zipfile import ZipFile
 from algorithm import plagiarism_checker
-from scrape_code import get_code
-from webscraping_module import get_data
 from codediff import codediff
-from flask_bcrypt import Bcrypt
 from webscraping_module import webscraping
 
 app = Flask(__name__)

@@ -1,7 +1,11 @@
 import requests
-from bs4 import BeautifulSoup
 import random
 import time
+import re
+import httpx
+import string
+import os
+from bs4 import BeautifulSoup
 
 class webscraping:
     def __init__(self, assignment_desc,filepath) -> None:
@@ -51,9 +55,43 @@ class webscraping:
             print(f"An error occurred: {e}")
 
     def scrape_data(self):
-        pass
+
+        def extract_apollo_state(html):
+            """Extract relevant apollostate JSON from the HTML source"""
+            match = re.search(r'apolloState":\s*({.+})};', html)
+            if match:
+                try:
+                    data = match.group(1)
+                    return data
+                except Exception as e:
+                    raise ValueError(f"Error parsing content: {str(e)}")
+            else:
+                data=""
+                return data
+                
+        def extract_visible_content(html):
+            soup = BeautifulSoup(html, 'html.parser')
+            visible_text = soup.get_text(separator="\n")
+            return visible_text
+
+        for url in self.search_results:
+            # Fetch the webpage content using HTTPX
+            response = httpx.get(url)
+            if response.status_code == 200:
+
+                visible_data = extract_visible_content(response.text)
+                hidden_data = extract_apollo_state(response.text)
+                
+                plain_text_data = visible_data + hidden_data
+
+                company_id = url.translate(str.maketrans('', '', string.punctuation))
+                company_id = company_id[5:21]
+                filename = os.path.join(self.filepath, f"{company_id}.txt")
+
+                with open(filename, 'w',encoding="utf-8") as f:
+                    f.write(plain_text_data)
 
 if __name__ == '__main__':
-    obj = webscraping("graph code in c") #test case
+    obj = webscraping("graph code in c", r"INSERT FILEPATH HERE") #testing
     obj.get_links()
     obj.scrape_data()
