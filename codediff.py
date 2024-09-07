@@ -2,7 +2,7 @@ import algorithm
 
 def strip_lines_and_return(filename):
     stripped_lines = []
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding="utf-8") as file:
         for line in file:
             stripped_line = line.strip()
             stripped_lines.append(stripped_line)
