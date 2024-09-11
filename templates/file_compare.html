@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2 class="page-head">Results</h2>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" href="/list">Detailed</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/heatmap">Heat Map</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/cluster">Cluster</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/topwords">Top Words</a>
+    </li>
+</ul>
+
+<style>
+    .table {
+        font-size: smaller;
+        width: 90vw;
+        overflow-x: scroll;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap;
+        overflow-x: auto;
+        max-width: 100px;
+    }
+
+    th {
+        text-align: center;
+    }
+
+    .percentage {
+        text-align: center;
+    }
+
+</style>
+
+<div class="result-content" style="display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 800px; margin: 0 auto;">
+
+    <table class="table" style="border: 1px solid #ddd; width: 100%; text-align: center;">
+        <thead>
+            <tr>
+                <th scope="col">{{ student1 }}</th>
+                <th scope="col">{{ student2 }}</th>
+            </tr>
+        </thead>
+    </table>
+
+    <img src="../static/wordcomparison.png" alt="comparison" class="comparison-image" style="width: 100%; max-width: 800px; border: 1px solid #ddd; padding-bottom:10px;">
+
+    <p style="font-size: 24px; text-align: center; margin: 0;">Longest Common Substring</p>
+    <textarea style="width: 100%; max-width: 800px; height: auto; white-space: pre-wrap; overflow: hidden; padding: 10px; font-size: 16px; border: 1px solid #ddd; background-color: #f9f9f9; font-family: monospace; resize: none;" readonly rows="{{ longest_substring|length // 50 }}">
+        {{ longest_substring }}
+    </textarea>
+
+    <div style="display: flex; justify-content: space-between; width: 100%; max-width: 800px; margin-top: 20px;">
+
+        <textarea style="width: 49%; height: auto; white-space: pre-wrap; overflow: auto; padding: 10px; font-size: 14px; border: 1px solid #ddd; background-color: #f9f9f9; font-family: monospace; resize: none;" readonly rows="{{ text1|length }}">
+            {% for line in text1 %}
+            {{ line }}
+            {% endfor %}
+        </textarea>
+
+        <textarea style="width: 49%; height: auto; white-space: pre-wrap; overflow: auto; padding: 10px; font-size: 14px; border: 1px solid #ddd; background-color: #f9f9f9; font-family: monospace; resize: none;" readonly rows="{{ text2|length }}">
+            {% for line in text2 %}
+            {{ line }}
+            {% endfor %}
+        </textarea>
+    </div>
+
+</div>
+
+{% endblock %}

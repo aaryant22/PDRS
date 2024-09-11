@@ -3,7 +3,7 @@ import shutil
 from flask import Flask, redirect, render_template, request, url_for
 from zipfile import ZipFile
 from algorithm import plagiarism_checker
-from codediff import codediff
+from compare_files import comparison
 from webscraping_module import webscraping
 
 app = Flask(__name__)
@@ -24,6 +24,8 @@ def fetch_data(filepath):
     plag_check_obj.generate_heatmap()
 
     session_data['filepath'] = filepath
+    session_data['count_matrix'] = plag_check_obj.count_matrix
+    session_data['corpus'] = plag_check_obj.corpus
     session_data['data'] = plag_check_obj.pairwise_similarity_score
     session_data['plag_highest'] = plag_check_obj.highest_plagiarism_score
     session_data['top_lang'] = plag_check_obj.toplang
@@ -170,24 +172,20 @@ def compare():
     
     student1 = request.form['student1']
     student2 = request.form['student2']
+    file1txt = session_data['corpus'][student1]
+    file2txt = session_data['corpus'][student2]
+    file1lines,file2lines = file1txt.split('\n'),file2txt.split('\n')
+    file1lines,file2lines = [x for x in file1lines if x],[y for y in file2lines if y]
+    count_matrix = session_data['count_matrix'].transpose()
+    count_matrix = count_matrix[[student1,student2]]
+    count_matrix = count_matrix.loc[(count_matrix[student1]>1) & (count_matrix[student2]>1)]
 
-    path = session_data['filepath']
-    full_path1 = path + "/" + student1
-    full_path2 = path + "/" + student2
+    comparison_obj = comparison(count_matrix,file1txt,file2txt)
+    comparison_obj.generate_plots()
+    comparison_obj.longest_common_string()
+    longest_common_str=comparison_obj.longest_common_substring.rstrip('{\n\t')
 
-    print(full_path1)
-
-    texts = codediff(full_path1, full_path2)
-    text1=texts[0]
-    text2=texts[1]
-    l = min(len(text1), len(text2))
-
-    if len(text1) > len(text2):
-        remaining = 1
-    else:
-        remaining = -1
-
-    return render_template("codecompare.html", text1=text1, text2=text2, student1=student1, student2=student2, l=l, remaining=remaining, extracted=extracted)
+    return render_template("file_compare.html", extracted=extracted , longest_substring=longest_common_str , student1=student1, student2=student2, text1=file1lines, text2=file2lines)
 
 @app.route("/chatgpt")
 def chatgpt():
