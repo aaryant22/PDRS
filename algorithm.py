@@ -15,6 +15,7 @@ class plagiarism_checker:
     def __init__(self,filepath) -> None:
         self.ext = ('.py', '.c', '.cpp', '.txt','.java','.html','.rs')
         self.filepath = filepath
+        self.corpus={}
         self.corpus_content=[]
         self.programming_language_files=[]
         self.file_names=[]
@@ -29,7 +30,8 @@ class plagiarism_checker:
                 text = ''
                 for paragraph in doc.paragraphs:
                     text += paragraph.text + '\n'
-                self.corpus_content.append(text)      
+                self.corpus_content.append(text) 
+                self.corpus[filename]=text 
                     
             elif filename.endswith('.pdf'):
                 file_path = os.path.join(self.filepath, filename)
@@ -43,6 +45,7 @@ class plagiarism_checker:
                     page = reader.pages[i]
                     output += page.extract_text()
                 self.corpus_content.append(output)
+                self.corpus[filename]=text
             
             elif filename.endswith('.ipynb'):
                 file_path = os.path.join(self.filepath, filename)
@@ -56,6 +59,7 @@ class plagiarism_checker:
 
                 notebook_text = '\n'.join(source_code)
                 self.corpus_content.append(notebook_text)
+                self.corpus[filename]=notebook_text
                 
             elif filename.endswith(self.ext):
                 file_path = os.path.join(self.filepath, filename)
@@ -64,6 +68,7 @@ class plagiarism_checker:
                         self.file_names.append(filename)
                         content = f.read()
                         self.corpus_content.append(content)
+                        self.corpus[filename]=content
                         self.programming_language_files.append(content)
                 except UnicodeDecodeError:
                     print(f"UnicodeDecodeError: Unable to decode '{filename}'")
