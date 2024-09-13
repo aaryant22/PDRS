@@ -1,5 +1,6 @@
 import os
 import shutil
+import webview
 from flask import Flask, redirect, render_template, request, url_for
 from zipfile import ZipFile
 from algorithm import plagiarism_checker
@@ -195,5 +196,8 @@ def chatgpt():
 
     webscrape_data(assignment_aim, filepath)
 
+webview.create_window('PDRS',app)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    webview.start()

@@ -16,4 +16,4 @@ pdfkit
 fpdf
 selenium
 httpx
-
+pywebview
