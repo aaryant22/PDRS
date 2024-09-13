@@ -172,6 +172,7 @@ def compare():
     
     student1 = request.form['student1']
     student2 = request.form['student2']
+    percentage = request.form['percentage']
     file1txt = session_data['corpus'][student1]
     file2txt = session_data['corpus'][student2]
     file1lines,file2lines = file1txt.split('\n'),file2txt.split('\n')
@@ -185,7 +186,7 @@ def compare():
     comparison_obj.longest_common_string()
     longest_common_str=comparison_obj.longest_common_substring.rstrip('{\n\t')
 
-    return render_template("file_compare.html", extracted=extracted , longest_substring=longest_common_str , student1=student1, student2=student2, text1=file1lines, text2=file2lines)
+    return render_template("file_compare.html", extracted=extracted , longest_substring=longest_common_str , student1=student1, student2=student2, percentage=percentage, text1=file1lines, text2=file2lines)
 
 @app.route("/chatgpt")
 def chatgpt():

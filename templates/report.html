@@ -142,6 +142,7 @@ background: linear-gradient(169deg, rgba(2,0,36,1) 43%, rgba(9,9,121,1) 100%, rg
                         <form action="{{ url_for('compare') }}", method="POST">
                           <input type="text" name="student1" id="student1" value="{{ i[0] }}" hidden>
                           <input type="text" name="student2" id="student2" value="{{ i[1] }}" hidden>
+                          <input type="text" name="percentage" id="percentage" value="{{ i[2] }}" hidden>
                           <input type="submit" value="Compare" class="btn btn-outline-primary compare">
                         </form> 
                       </td>
