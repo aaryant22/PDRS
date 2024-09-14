@@ -28,6 +28,8 @@ from selenium1 import ai_detection
 
 app = Flask(__name__)
 
+if __name__ == '__main__':
+    app.run(debug=True)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -371,6 +373,3 @@ def chatgpt():
     filepath = session.get('path_to_files', None)
 
     ai_detection(assignment_aim, filepath)
-
-if __name__ == '__main__':
-    app.run(debug=True)
