@@ -91,18 +91,19 @@ background: linear-gradient(169deg, rgba(2,0,36,1) 43%, rgba(9,9,121,1) 100%, rg
 
     
 </script>
-
+        {%if analysis_name%}
+            <div class="analysis_name" style="text-align:center;">
+                <p style="font-size:30px;font:sans-serif;">Analysis Name : {{ analysis_name }}</p>
+            </div>
+        {%endif%}
 
         <div class="dash">
             <p class="report-prog">Top Programming Language : {{ top_lang }} </p>
             <p class="report-percent">Top Plagiarism Flagged : {{ plag_highest }} %</p>
             <button onclick="window.print()" class="btn btn-primary v_button">Generate Report</button>
             <button onclick="lt_redirect()" class="btn btn-primary v_button">View Detailed Report</button>
-
-
         </div>
-
-        
+    
 
         <div class="visual">
             <button class="visual_button" id="hm" onclick="hm_redirect()">
@@ -141,6 +142,7 @@ background: linear-gradient(169deg, rgba(2,0,36,1) 43%, rgba(9,9,121,1) 100%, rg
                         <form action="{{ url_for('compare') }}", method="POST">
                           <input type="text" name="student1" id="student1" value="{{ i[0] }}" hidden>
                           <input type="text" name="student2" id="student2" value="{{ i[1] }}" hidden>
+                          <input type="text" name="percentage" id="percentage" value="{{ i[2] }}" hidden>
                           <input type="submit" value="Compare" class="btn btn-outline-primary compare">
                         </form> 
                       </td>

@@ -38,25 +38,44 @@ function loader() {
 }
 
 // Call the loader function to execute the SweetAlert 2 function
-
-
-
-
         // reversing table
-        function reverseTable() {
-        const tableBody = document.getElementById("tableBody");
-        const rows = Array.from(tableBody.rows);
-        rows.reverse();
-        while (tableBody.firstChild) {
-            tableBody.removeChild(tableBody.firstChild);
-        }
-        for (const row of rows) {
-            tableBody.appendChild(row);
-        }
-        }
-    </script>
+        let originalRows = [];
 
-    
+        function reverseTable() {
+            const tableBody = document.getElementById("tableBody");
+
+          if (originalRows.length === 0) {
+              originalRows = Array.from(tableBody.rows);
+          }
+
+          if (document.getElementById("reverse").checked) {
+              const rows = Array.from(tableBody.rows);
+              rows.sort((a, b) => {
+                  const percentageA = parseFloat(a.cells[3].textContent.replace('%', '')) || 0;
+                  const percentageB = parseFloat(b.cells[3].textContent.replace('%', '')) || 0;
+                  return percentageB - percentageA;
+              });
+
+              while (tableBody.firstChild) {
+                  tableBody.removeChild(tableBody.firstChild);
+              }
+
+              for (const row of rows) {
+                  tableBody.appendChild(row);
+              }
+          } else {
+              // Revert to original order if checkbox is unchecked
+              while (tableBody.firstChild) {
+                  tableBody.removeChild(tableBody.firstChild);
+              }
+
+              for (const row of originalRows) {
+                  tableBody.appendChild(row);
+              }
+          }
+        }
+      
+    </script>
     <style>
         body{
             width: 100%;
